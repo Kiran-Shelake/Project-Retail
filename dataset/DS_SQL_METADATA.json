@@ -1,0 +1,45 @@
+{
+	"name": "DS_SQL_METADATA",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SQL_SOURCE",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "SourceSystem",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SourceSchema",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SourceTable",
+				"type": "nvarchar"
+			},
+			{
+				"name": "IncrementalColumn",
+				"type": "nvarchar"
+			},
+			{
+				"name": "TargetContainer",
+				"type": "nvarchar"
+			},
+			{
+				"name": "TargetFileName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "TargetFormat",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Config_Source_To_Raw"
+		}
+	}
+}
