@@ -5,27 +5,26 @@
 			"referenceName": "LS_ADLS_RAW",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"FolderName": {
+				"type": "string"
+			},
+			"FileName": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileSystem": "source"
+				"fileSystem": "raw"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
-		"schema": [
-			{
-				"name": "ORDER_METHOD_CODE",
-				"type": "String"
-			},
-			{
-				"name": "ORDER_METHOD_EN",
-				"type": "String"
-			}
-		]
+		"schema": []
 	}
 }
