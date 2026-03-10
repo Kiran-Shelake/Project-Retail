@@ -1,0 +1,9 @@
+{
+	"name": "ADF-SalesProject-Kiran",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "196ec075-591f-45ab-a1e0-a1c2036b3174",
+		"tenantId": "8d676132-49f3-43b4-9916-e4c2883f871d"
+	}
+}
