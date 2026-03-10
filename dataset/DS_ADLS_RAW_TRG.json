@@ -1,5 +1,5 @@
 {
-	"name": "DS_ADLS_SRC_DELI",
+	"name": "DS_ADLS_RAW_TRG",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "LS_ADLS_RAW",
