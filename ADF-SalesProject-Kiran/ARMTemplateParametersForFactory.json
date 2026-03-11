@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ADF-SalesProject-Kiran"
+		},
+		"LS_ADLS_RAW_accountKey": {
+			"value": ""
+		},
+		"LS_SQL_SOURCE_password": {
+			"value": ""
+		},
+		"LS_ADLS_RAW_properties_typeProperties_url": {
+			"value": "https://adlssalesprojectkiran.dfs.core.windows.net/"
+		},
+		"LS_SQL_SOURCE_properties_typeProperties_server": {
+			"value": "admin-salesproject.database.windows.net"
+		},
+		"LS_SQL_SOURCE_properties_typeProperties_database": {
+			"value": "SALES"
+		},
+		"LS_SQL_SOURCE_properties_typeProperties_userName": {
+			"value": "Admin_Sales"
+		}
+	}
+}
