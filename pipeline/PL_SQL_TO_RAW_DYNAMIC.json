@@ -138,7 +138,7 @@
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "SELECT LastProcessedValue\nFROM WatermarkTable\nWHERE Table_Name = '@{item().SourceObject}'",
+										"value": "SELECT LastProcessedValue\nFROM WatermarkTable\nWHERE Table_Name = '@{item().SourceTable}'",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
@@ -173,7 +173,10 @@
 								"storedProcedureName": "[dbo].[sp_UpdateWatermark]",
 								"storedProcedureParameters": {
 									"TableName": {
-										"value": "@item().SourceObject",
+										"value": {
+											"value": "@item().SourceTable",
+											"type": "Expression"
+										},
 										"type": "String"
 									}
 								}
