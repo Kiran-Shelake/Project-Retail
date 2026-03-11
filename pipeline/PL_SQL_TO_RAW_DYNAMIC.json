@@ -114,7 +114,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"FolderName": {
-											"value": "raw/SQLServer/Target/@{item().SourceTable}",
+											"value": "SQLServer/Target/@{item().SourceTable}",
 											"type": "Expression"
 										},
 										"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
