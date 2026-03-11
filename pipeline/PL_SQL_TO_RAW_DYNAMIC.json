@@ -178,6 +178,13 @@
 											"type": "Expression"
 										},
 										"type": "String"
+									},
+									"LastValue": {
+										"value": {
+											"value": "@formatDateTime(utcNow(),'yyyy-MM-dd HH:mm:ss')",
+											"type": "Expression"
+										},
+										"type": "Datetime"
 									}
 								}
 							},
