@@ -75,12 +75,44 @@
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
-								"enableStaging": false
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
 							},
 							"inputs": [
 								{
 									"referenceName": "DS_SQL_SRC_TABLE",
 									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_ADLS_RAW_TRG",
+									"type": "DatasetReference",
+									"parameters": {
+										"FolderName": {
+											"value": "raw/SQLServer/Target/@{item().SourceTable}",
+											"type": "Expression"
+										},
+										"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
+									}
 								}
 							]
 						},
@@ -99,7 +131,10 @@
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
-									"sqlReaderQuery": "SELECT LastProcessedValue\nFROM WatermarkTable\nWHERE Table_Name = '@{item().SourceObject}'",
+									"sqlReaderQuery": {
+										"value": "SELECT LastProcessedValue\nFROM WatermarkTable\nWHERE Table_Name = '@{item().SourceObject}'",
+										"type": "Expression"
+									},
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
@@ -107,6 +142,39 @@
 									"referenceName": "DS_SQL_METADATA",
 									"type": "DatasetReference"
 								}
+							}
+						},
+						{
+							"name": "ACT_GEN_SPRC_UPD_Watermark",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "ACT_MT_Copy_SQL_RAW",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[sp_UpdateWatermark]",
+								"storedProcedureParameters": {
+									"TableName": {
+										"value": "@item().SourceObject",
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_SQL_SOURCE",
+								"type": "LinkedServiceReference"
 							}
 						}
 					]
