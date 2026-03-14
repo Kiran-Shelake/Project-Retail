@@ -146,8 +146,11 @@
 									"partitionOption": "None"
 								},
 								"dataset": {
-									"referenceName": "DS_SQL_METADATA",
-									"type": "DatasetReference"
+									"referenceName": "DS_SQL_SRC_TABLE",
+									"type": "DatasetReference",
+									"parameters": {
+										"TableName": "WatermarkTable"
+									}
 								},
 								"firstRowOnly": true
 							}
@@ -191,7 +194,7 @@
 								}
 							},
 							"linkedServiceName": {
-								"referenceName": "LS_SQL_METADATA",
+								"referenceName": "LS_SQL_SOURCE",
 								"type": "LinkedServiceReference"
 							}
 						}
