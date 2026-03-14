@@ -1,5 +1,5 @@
 {
-	"name": "PL_SQL_TO_RAW_DYNAMIC",
+	"name": "PL_EXT_SQL_TO_RAW_DAILY",
 	"properties": {
 		"activities": [
 			{
@@ -45,6 +45,7 @@
 						"value": "@activity('ACT_GEN_LKP_CONFIG').output.value",
 						"type": "Expression"
 					},
+					"isSequential": true,
 					"activities": [
 						{
 							"name": "ACT_MT_Copy_SQL_RAW",
@@ -69,7 +70,7 @@
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "@if(\nempty(item().IncrementalColumn),\nconcat('SELECT * FROM ',item().SourceSchema,'.',item().SourceTable),\nconcat(\n'SELECT * FROM ',\nitem().SourceSchema,'.',item().SourceTable,\n' WHERE ',\nitem().IncrementalColumn,\n' > ''',\nactivity('ACT_GEN_LKP_Watermark').output.firstRow.LastProcessedValue,\n''''\n)\n)",
+										"value": "@if(\nempty(item().IncrementalColumn),\nconcat('SELECT * FROM ',item().SourceSchema,'.',item().SourceTable),\nconcat(\n'SELECT * FROM ',\nitem().SourceSchema,'.',item().SourceTable,\n' WHERE ',\nitem().IncrementalColumn,\n' >= ''',\nactivity('ACT_GEN_LKP_Watermark').output.firstRow.LastProcessedValue,\n''' ORDER BY ',\nitem().IncrementalColumn\n)\n)",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
@@ -174,22 +175,22 @@
 								"storedProcedureParameters": {
 									"TableName": {
 										"value": {
-											"value": "@item().SourceTable",
+											"value": "@{item().SourceTable}",
 											"type": "Expression"
 										},
 										"type": "String"
 									},
-									"LastValue": {
+									"IncrementalColumn": {
 										"value": {
-											"value": "@formatDateTime(utcNow(),'yyyy-MM-dd HH:mm:ss')",
+											"value": "@{item().IncrementalColumn}",
 											"type": "Expression"
 										},
-										"type": "Datetime"
+										"type": "String"
 									}
 								}
 							},
 							"linkedServiceName": {
-								"referenceName": "LS_SQL_SOURCE",
+								"referenceName": "LS_SQL_METADATA",
 								"type": "LinkedServiceReference"
 							}
 						}
