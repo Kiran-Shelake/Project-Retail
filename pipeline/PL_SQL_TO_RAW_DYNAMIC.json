@@ -110,7 +110,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "DS_ADLS_RAW_TRG",
+									"referenceName": "DS_ADLS_RAW_CSV",
 									"type": "DatasetReference",
 									"parameters": {
 										"FolderName": {

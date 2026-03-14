@@ -1,5 +1,5 @@
 {
-	"name": "DS_ADLS_RAW_TRG",
+	"name": "DS_ADLS_RAW_CSV",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "LS_ADLS_RAW",
