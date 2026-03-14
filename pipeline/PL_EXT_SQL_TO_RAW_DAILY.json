@@ -148,7 +148,8 @@
 								"dataset": {
 									"referenceName": "DS_SQL_METADATA",
 									"type": "DatasetReference"
-								}
+								},
+								"firstRowOnly": true
 							}
 						},
 						{
@@ -175,14 +176,14 @@
 								"storedProcedureParameters": {
 									"TableName": {
 										"value": {
-											"value": "@{item().SourceTable}",
+											"value": "@item().SourceTable",
 											"type": "Expression"
 										},
 										"type": "String"
 									},
 									"IncrementalColumn": {
 										"value": {
-											"value": "@{item().IncrementalColumn}",
+											"value": "@item().IncrementalColumn",
 											"type": "Expression"
 										},
 										"type": "String"
