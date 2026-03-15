@@ -98,7 +98,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"FileName": {
-											"value": "@concat(item().SourceTable,item().TargetFormat)",
+											"value": "@concat(item().SourceTable,'.',item().TargetFormat)",
 											"type": "Expression"
 										}
 									}
@@ -179,7 +179,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"FileName": {
-											"value": "@concat(item().SourceTable,item().TargetFormat)",
+											"value": "@concat(item().SourceTable,'.',item().TargetFormat)",
 											"type": "Expression"
 										}
 									}
@@ -260,7 +260,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"FileName": {
-											"value": "@concat(item().SourceTable,item().TargetFormat)",
+											"value": "@concat(item().SourceTable,'.',item().TargetFormat)",
 											"type": "Expression"
 										}
 									}
@@ -338,7 +338,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"FileName": {
-											"value": "@concat(item().SourceTable,item().TargetFormat)",
+											"value": "@concat(item().SourceTable,'.',item().TargetFormat)",
 											"type": "Expression"
 										}
 									}
