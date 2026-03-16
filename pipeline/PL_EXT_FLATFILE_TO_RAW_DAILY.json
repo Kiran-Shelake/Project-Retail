@@ -100,6 +100,10 @@
 										"FileName": {
 											"value": "@concat(item().SourceTable,'.',item().TargetFormat)",
 											"type": "Expression"
+										},
+										"Delimiter": {
+											"value": "@item().Delimiter\n",
+											"type": "Expression"
 										}
 									}
 								}
@@ -181,7 +185,8 @@
 										"FileName": {
 											"value": "@concat(item().SourceTable,'.',item().TargetFormat)",
 											"type": "Expression"
-										}
+										},
+										"Delimiter": "@item().Delimiter"
 									}
 								}
 							],
@@ -262,7 +267,8 @@
 										"FileName": {
 											"value": "@concat(item().SourceTable,'.',item().TargetFormat)",
 											"type": "Expression"
-										}
+										},
+										"Delimiter": "@item().Delimiter"
 									}
 								}
 							],
@@ -340,7 +346,8 @@
 										"FileName": {
 											"value": "@concat(item().SourceTable,'.',item().TargetFormat)",
 											"type": "Expression"
-										}
+										},
+										"Delimiter": "@item().Delimiter"
 									}
 								}
 							],

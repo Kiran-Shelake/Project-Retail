@@ -8,6 +8,9 @@
 		"parameters": {
 			"FileName": {
 				"type": "string"
+			},
+			"Delimiter": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
@@ -21,20 +24,14 @@
 				},
 				"fileSystem": "sales"
 			},
-			"columnDelimiter": ",",
+			"columnDelimiter": {
+				"value": "@dataset().Delimiter",
+				"type": "Expression"
+			},
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
-		"schema": [
-			{
-				"name": "ORDER_METHOD_CODE",
-				"type": "String"
-			},
-			{
-				"name": "ORDER_METHOD_EN",
-				"type": "String"
-			}
-		]
+		"schema": []
 	}
 }
