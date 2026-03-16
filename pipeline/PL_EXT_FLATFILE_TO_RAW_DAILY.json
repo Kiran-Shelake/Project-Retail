@@ -64,7 +64,7 @@
 									"type": "DelimitedTextSource",
 									"storeSettings": {
 										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
+										"recursive": false,
 										"enablePartitionDiscovery": false
 									},
 									"formatSettings": {
@@ -149,7 +149,7 @@
 									"type": "DelimitedTextSource",
 									"storeSettings": {
 										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
+										"recursive": false,
 										"enablePartitionDiscovery": false
 									},
 									"formatSettings": {
@@ -208,85 +208,6 @@
 							]
 						},
 						{
-							"name": "ACT_REJECT_SOURCE_FILE",
-							"type": "Copy",
-							"dependsOn": [
-								{
-									"activity": "ACT_COPY_TO_ARCHIVE",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "DelimitedTextSource",
-									"storeSettings": {
-										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
-										"enablePartitionDiscovery": false
-									},
-									"formatSettings": {
-										"type": "DelimitedTextReadSettings"
-									}
-								},
-								"sink": {
-									"type": "DelimitedTextSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
-									},
-									"formatSettings": {
-										"type": "DelimitedTextWriteSettings",
-										"quoteAllText": true,
-										"fileExtension": ".txt"
-									}
-								},
-								"enableStaging": false,
-								"translator": {
-									"type": "TabularTranslator",
-									"typeConversion": true,
-									"typeConversionSettings": {
-										"allowDataTruncation": true,
-										"treatBooleanAsNumber": false
-									}
-								}
-							},
-							"inputs": [
-								{
-									"referenceName": "DS_ADLS_SALES_FaltFiles",
-									"type": "DatasetReference",
-									"parameters": {
-										"FileName": {
-											"value": "@concat(item().SourceTable,'.',item().TargetFormat)",
-											"type": "Expression"
-										},
-										"Delimiter": "@item().Delimiter"
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "DS_ADLS_RAW_CSV",
-									"type": "DatasetReference",
-									"parameters": {
-										"FolderName": {
-											"value": "Flat_File/Reject/@{item().SourceTable}",
-											"type": "Expression"
-										},
-										"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
-									}
-								}
-							]
-						},
-						{
 							"name": "ACT_COPY_TO_FAILURE",
 							"type": "Copy",
 							"dependsOn": [
@@ -310,7 +231,7 @@
 									"type": "DelimitedTextSource",
 									"storeSettings": {
 										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
+										"recursive": false,
 										"enablePartitionDiscovery": false
 									},
 									"formatSettings": {
@@ -364,6 +285,49 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "ACT_DELETE_SOURCE_FILE",
+							"type": "Delete",
+							"dependsOn": [
+								{
+									"activity": "ACT_COPY_TO_ARCHIVE",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "DS_ADLS_SALES_FaltFiles",
+									"type": "DatasetReference",
+									"parameters": {
+										"FileName": "@concat(item().SourceTable,'.',item().TargetFormat)",
+										"Delimiter": "@item().Delimiter"
+									}
+								},
+								"logStorageSettings": {
+									"linkedServiceName": {
+										"referenceName": "LS_ADLS_RAW",
+										"type": "LinkedServiceReference"
+									},
+									"path": "raw/Flat_File/Deleted"
+								},
+								"enableLogging": true,
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							}
 						}
 					]
 				}
