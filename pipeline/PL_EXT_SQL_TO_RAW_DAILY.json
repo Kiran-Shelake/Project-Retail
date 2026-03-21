@@ -23,7 +23,10 @@
 					},
 					"dataset": {
 						"referenceName": "DS_SQL_METADATA",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": "Config_Source_To_Raw"
+						}
 					},
 					"firstRowOnly": false
 				}
@@ -73,7 +76,7 @@
 										"value": "@if(\nempty(item().IncrementalColumn),\nconcat('SELECT * FROM ',item().SourceSchema,'.',item().SourceTable),\nconcat(\n'SELECT * FROM ',\nitem().SourceSchema,'.',item().SourceTable,\n' WHERE ',\nitem().IncrementalColumn,\n' >= ''',\nactivity('ACT_GEN_LKP_Watermark').output.firstRow.LastProcessedValue,\n''' ORDER BY ',\nitem().IncrementalColumn\n)\n)",
 										"type": "Expression"
 									},
-									"queryTimeout": "02:00:00",
+									"queryTimeout": "01:00:00",
 									"partitionOption": "None"
 								},
 								"sink": {
@@ -142,11 +145,11 @@
 										"value": "SELECT LastProcessedValue\nFROM WatermarkTable\nWHERE Table_Name = '@{item().SourceTable}'",
 										"type": "Expression"
 									},
-									"queryTimeout": "02:00:00",
+									"queryTimeout": "01:00:00",
 									"partitionOption": "None"
 								},
 								"dataset": {
-									"referenceName": "DS_SQL_SRC_TABLE",
+									"referenceName": "DS_SQL_METADATA",
 									"type": "DatasetReference",
 									"parameters": {
 										"TableName": "WatermarkTable"
@@ -220,7 +223,7 @@
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
-									"queryTimeout": "02:00:00",
+									"queryTimeout": "01:00:00",
 									"partitionOption": "None"
 								},
 								"sink": {
