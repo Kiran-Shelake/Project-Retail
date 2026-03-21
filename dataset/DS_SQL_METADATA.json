@@ -5,6 +5,11 @@
 			"referenceName": "LS_SQL_METADATA",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"TableName": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [
@@ -39,7 +44,10 @@
 		],
 		"typeProperties": {
 			"schema": "dbo",
-			"table": "Config_Source_To_Raw"
+			"table": {
+				"value": "@dataset().TableName",
+				"type": "Expression"
+			}
 		}
 	}
 }
