@@ -23,7 +23,10 @@
 					},
 					"dataset": {
 						"referenceName": "DS_SQL_METADATA",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": "Config_Source_To_Raw"
+						}
 					},
 					"firstRowOnly": false
 				}
