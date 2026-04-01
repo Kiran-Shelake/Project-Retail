@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "SELECT TABLE_NAME FROM ingestion.Config_Raw_Ingestion",
+						"sqlReaderQuery": "SELECT TABLE_NAME, Delimiter FROM ingestion.Config_Raw_Ingestion",
 						"queryTimeout": "01:00:00",
 						"partitionOption": "None"
 					},
@@ -63,6 +63,10 @@
 								"baseParameters": {
 									"p_table_name": {
 										"value": "@item().TABLE_NAME",
+										"type": "Expression"
+									},
+									"p_delimiter": {
+										"value": "@item().delimiter",
 										"type": "Expression"
 									}
 								}
