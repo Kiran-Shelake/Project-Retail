@@ -11,6 +11,9 @@
 			},
 			"FileName": {
 				"type": "string"
+			},
+			"Delimiter": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
@@ -28,7 +31,10 @@
 				},
 				"fileSystem": "raw"
 			},
-			"columnDelimiter": ",",
+			"columnDelimiter": {
+				"value": "@dataset().Delimiter",
+				"type": "Expression"
+			},
 			"encodingName": "UTF-8",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,

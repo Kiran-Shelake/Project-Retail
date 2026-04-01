@@ -123,7 +123,8 @@
 										"FileName": {
 											"value": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
 											"type": "Expression"
-										}
+										},
+										"Delimiter": "@item().Delimiter"
 									}
 								}
 							]
@@ -205,7 +206,8 @@
 										"FileName": {
 											"value": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
 											"type": "Expression"
-										}
+										},
+										"Delimiter": "@item().Delimiter"
 									}
 								}
 							]
@@ -284,7 +286,8 @@
 											"value": "Flat_File/Failure/@{item().SourceTable}",
 											"type": "Expression"
 										},
-										"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
+										"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+										"Delimiter": "@item().Delimiter"
 									}
 								}
 							]
