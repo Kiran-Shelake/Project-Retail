@@ -7,17 +7,41 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "ADF-SalesProject-Kiran"
 		},
+		"LS_ADB_SalesProject_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'LS_ADB_SalesProject'"
+		},
 		"LS_ADLS_RAW_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'LS_ADLS_RAW'"
+		},
+		"LS_SQL_METADATA_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_SQL_METADATA'"
 		},
 		"LS_SQL_SOURCE_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SQL_SOURCE'"
 		},
+		"LS_ADB_SalesProject_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0319-164820-o84x6hsr"
+		},
 		"LS_ADLS_RAW_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adlssalesprojectkiran.dfs.core.windows.net/"
+		},
+		"LS_SQL_METADATA_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "admin-salesproject.database.windows.net"
+		},
+		"LS_SQL_METADATA_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "ASQL_SalesProject_Kiran"
+		},
+		"LS_SQL_METADATA_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "Admin_Sales"
 		},
 		"LS_SQL_SOURCE_properties_typeProperties_server": {
 			"type": "string",
@@ -58,14 +82,32 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"LS_ADB_SalesProject_accessToken": {
+						"value": "[parameters('LS_ADB_SalesProject_accessToken')]"
+					},
 					"LS_ADLS_RAW_accountKey": {
 						"value": "[parameters('LS_ADLS_RAW_accountKey')]"
+					},
+					"LS_SQL_METADATA_password": {
+						"value": "[parameters('LS_SQL_METADATA_password')]"
 					},
 					"LS_SQL_SOURCE_password": {
 						"value": "[parameters('LS_SQL_SOURCE_password')]"
 					},
+					"LS_ADB_SalesProject_properties_typeProperties_existingClusterId": {
+						"value": "[parameters('LS_ADB_SalesProject_properties_typeProperties_existingClusterId')]"
+					},
 					"LS_ADLS_RAW_properties_typeProperties_url": {
 						"value": "[parameters('LS_ADLS_RAW_properties_typeProperties_url')]"
+					},
+					"LS_SQL_METADATA_properties_typeProperties_server": {
+						"value": "[parameters('LS_SQL_METADATA_properties_typeProperties_server')]"
+					},
+					"LS_SQL_METADATA_properties_typeProperties_database": {
+						"value": "[parameters('LS_SQL_METADATA_properties_typeProperties_database')]"
+					},
+					"LS_SQL_METADATA_properties_typeProperties_userName": {
+						"value": "[parameters('LS_SQL_METADATA_properties_typeProperties_userName')]"
 					},
 					"LS_SQL_SOURCE_properties_typeProperties_server": {
 						"value": "[parameters('LS_SQL_SOURCE_properties_typeProperties_server')]"
