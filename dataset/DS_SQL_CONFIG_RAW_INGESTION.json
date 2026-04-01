@@ -1,0 +1,29 @@
+{
+	"name": "DS_SQL_CONFIG_RAW_INGESTION",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SQL_METADATA",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "TABLE_NAME",
+				"type": "varchar"
+			},
+			{
+				"name": "SOURCE_TYPE",
+				"type": "varchar"
+			},
+			{
+				"name": "PRIMARY_KEY",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "ingestion",
+			"table": "Config_Raw_Ingestion"
+		}
+	}
+}

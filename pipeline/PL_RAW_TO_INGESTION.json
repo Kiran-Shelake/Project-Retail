@@ -3,8 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "ACT_ADB_NOTE_RawtoIngestion",
-				"type": "DatabricksNotebook",
+				"name": "ACT_GEN_LKP_CONFIG",
+				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -15,11 +15,64 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Users/prabhashelake123@gmail.com/NB_RAW_TO_INGESTION"
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_ADB_SalesProject",
-					"type": "LinkedServiceReference"
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT TABLE_NAME FROM ingestion.Config_Raw_Ingestion",
+						"queryTimeout": "01:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_SQL_CONFIG_RAW_INGESTION",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ACT_ITRC_FOR_EACH_Table",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ACT_GEN_LKP_CONFIG",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ACT_GEN_LKP_CONFIG').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "ACT_ADB_NOTE_RawtoIngestion",
+							"type": "DatabricksNotebook",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.10:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Users/prabhashelake123@gmail.com/NB_RAW_TO_INGESTION",
+								"baseParameters": {
+									"p_table_name": {
+										"value": "@item().TABLE_NAME",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_ADB_SalesProject",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
 				}
 			}
 		],
