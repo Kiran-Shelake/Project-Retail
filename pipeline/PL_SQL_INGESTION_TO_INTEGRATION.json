@@ -1,6 +1,61 @@
 {
 	"name": "PL_SQL_INGESTION_TO_INTEGRATION",
 	"properties": {
+		"activities": [
+			{
+				"name": "ACT_ITRC_FOR_SP",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.spList",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"batchCount": 3,
+					"activities": [
+						{
+							"name": "Stored procedure1",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": {
+									"value": "@item()",
+									"type": "Expression"
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_SQL_METADATA",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"spList": {
+				"type": "array",
+				"defaultValue": [
+					"Integration.sp_Load_Order_Method_LKP",
+					"Integration.sp_Load_Return_Reason_LKP",
+					"Integration.sp_Load_Country_LKP",
+					"Integration.sp_Load_Warehouse_LKP",
+					"Integration.sp_Load_Retailer_LKP",
+					"Integration.sp_Load_Product_Name_LKP",
+					"Integration.sp_Load_Product"
+				]
+			}
+		},
 		"annotations": []
 	}
 }
