@@ -1,5 +1,5 @@
 {
-	"name": "PL_EXT_SQL_TO_RAW_DAILY",
+	"name": "PL_SQL_TO_RAW",
 	"properties": {
 		"activities": [
 			{

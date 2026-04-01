@@ -1,5 +1,5 @@
 {
-	"name": "PL_SQL_TO_RAW_DYNAMIC",
+	"name": "PL_EXT_SQL_TO_RAW_DAILY",
 	"properties": {
 		"activities": [
 			{
@@ -76,7 +76,10 @@
 										"typeProperties": {
 											"source": {
 												"type": "AzureSqlSource",
-												"sqlReaderQuery": "@concat(\n'SELECT * FROM ',\nitem().SourceSchema,'.',item().SourceTable\n)",
+												"sqlReaderQuery": {
+													"value": "@concat(\n'SELECT * FROM ',\nitem().SourceSchema,'.',item().SourceTable\n)",
+													"type": "Expression"
+												},
 												"queryTimeout": "02:00:00",
 												"partitionOption": "None"
 											},
@@ -210,7 +213,10 @@
 										"typeProperties": {
 											"source": {
 												"type": "AzureSqlSource",
-												"sqlReaderQuery": "SELECT LastProcessedValue\nFROM WatermarkTable\nWHERE Table_Name = '@{item().SourceTable}'",
+												"sqlReaderQuery": {
+													"value": "SELECT LastProcessedValue\nFROM WatermarkTable\nWHERE Table_Name = '@{item().SourceTable}'",
+													"type": "Expression"
+												},
 												"queryTimeout": "01:00:00",
 												"partitionOption": "None"
 											},
@@ -245,7 +251,10 @@
 										"typeProperties": {
 											"source": {
 												"type": "AzureSqlSource",
-												"sqlReaderQuery": "@concat(\n'SELECT * FROM ',\nitem().SourceSchema,'.',item().SourceTable,\n' WHERE ',item().IncrementalColumn,' >= ''',\nactivity('ACT_LKP_WATERMARK').output.firstRow.LastProcessedValue,\n''''\n)",
+												"sqlReaderQuery": {
+													"value": "@concat(\n'SELECT * FROM ',\nitem().SourceSchema,'.',item().SourceTable,\n' WHERE ',item().IncrementalColumn,' >= ''',\nactivity('ACT_LKP_WATERMARK').output.firstRow.LastProcessedValue,\n''''\n)",
+													"type": "Expression"
+												},
 												"queryTimeout": "02:00:00",
 												"partitionOption": "None"
 											},
@@ -312,7 +321,10 @@
 										"typeProperties": {
 											"source": {
 												"type": "AzureSqlSource",
-												"sqlReaderQuery": "@concat(\n'SELECT MAX(',item().IncrementalColumn,') AS max_val FROM ',\nitem().SourceSchema,'.',item().SourceTable,\n' WHERE ',item().IncrementalColumn,' >= ''',\nactivity('ACT_LKP_WATERMARK').output.firstRow.LastProcessedValue,\n''''\n)",
+												"sqlReaderQuery": {
+													"value": "@concat(\n'SELECT MAX(',item().IncrementalColumn,') AS max_val FROM ',\nitem().SourceSchema,'.',item().SourceTable,\n' WHERE ',item().IncrementalColumn,' >= ''',\nactivity('ACT_LKP_WATERMARK').output.firstRow.LastProcessedValue,\n''''\n)",
+													"type": "Expression"
+												},
 												"queryTimeout": "02:00:00",
 												"partitionOption": "None"
 											},
@@ -348,11 +360,17 @@
 											"storedProcedureName": "[dbo].[sp_UpdateWatermark]",
 											"storedProcedureParameters": {
 												"TableName": {
-													"value": "@item().SourceTable",
+													"value": {
+														"value": "@item().SourceTable",
+														"type": "Expression"
+													},
 													"type": "String"
 												},
 												"IncrementalColumn": {
-													"value": "@activity('ACT_LKP_MAX_VALUE').output.firstRow.max_val",
+													"value": {
+														"value": "@activity('ACT_LKP_MAX_VALUE').output.firstRow.max_val",
+														"type": "Expression"
+													},
 													"type": "String"
 												}
 											}
