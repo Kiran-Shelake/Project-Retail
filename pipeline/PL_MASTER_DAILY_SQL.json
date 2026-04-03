@@ -1,0 +1,105 @@
+{
+	"name": "PL_MASTER_DAILY_SQL",
+	"properties": {
+		"activities": [
+			{
+				"name": "EXEC_LKP_LOAD",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_SQL_INGESTION_TO_INTEGRATION",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "NB_SCD2_ORDER",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "EXEC_LKP_LOAD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/prabhashelake123@gmail.com/Project-Retail/databricks Notebook/NB_TBL_DIM_ORDER-SCD2"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ADB_SalesProject",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "NB_FACT_SALES",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "NB_SCD2_ORDER",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/prabhashelake123@gmail.com/Project-Retail/databricks Notebook/NB_TBL_FACT_SALES"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ADB_SalesProject",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "NB_FACT_INVENTORY",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "NB_FACT_SALES",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/prabhashelake123@gmail.com/Project-Retail/databricks Notebook/NB_TBL_FACT_INVENTORY"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ADB_SalesProject",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": []
+	}
+}
