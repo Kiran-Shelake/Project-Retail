@@ -119,7 +119,8 @@
 												"type": "DatasetReference",
 												"parameters": {
 													"FolderName": "SQLServer/Target/@{item().SourceTable}",
-													"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
+													"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+													"Delimiter": "@item.Delimiter"
 												}
 											}
 										]
@@ -191,7 +192,8 @@
 														"value": "SQLServer/Failure/@{item().SourceTable}",
 														"type": "Expression"
 													},
-													"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
+													"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+													"Delimiter": "@item.Delimiter"
 												}
 											}
 										]
@@ -294,7 +296,11 @@
 												"type": "DatasetReference",
 												"parameters": {
 													"FolderName": "SQLServer/Target/@{item().SourceTable}",
-													"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
+													"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+													"Delimiter": {
+														"value": "@item.Delimiter",
+														"type": "Expression"
+													}
 												}
 											}
 										]
