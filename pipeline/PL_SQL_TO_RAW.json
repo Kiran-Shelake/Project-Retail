@@ -121,7 +121,8 @@
 											"value": "SQLServer/Target/@{item().SourceTable}",
 											"type": "Expression"
 										},
-										"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
+										"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+										"Delimiter": "@item.Delimiter"
 									}
 								}
 							]
@@ -268,7 +269,8 @@
 											"value": "SQLServer/Failure/@{item().SourceTable}",
 											"type": "Expression"
 										},
-										"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
+										"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+										"Delimiter": "@item.Delimiter"
 									}
 								}
 							]
