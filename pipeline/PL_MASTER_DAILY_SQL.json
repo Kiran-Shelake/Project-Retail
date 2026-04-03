@@ -119,27 +119,42 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[dbo].[sp_Insert_TableLog_Start]",
+					"storedProcedureName": "[integration].[sp_LogStart]",
 					"storedProcedureParameters": {
-						"PipelineName": {
+						"SourceSystem": {
+							"value": {
+								"value": "SQL",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"MaterPipline_ID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Master_Pipline_Name": {
 							"value": {
 								"value": "@pipeline().Pipeline",
 								"type": "Expression"
 							},
 							"type": "String"
 						},
-						"ActivityName": {
-							"value": {
-								"value": "'PL_MASTER_DAILY_SQL'\n",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"ExecutionID": {
+						"Pipline_ID": {
 							"value": {
 								"value": "@pipeline().RunId",
 								"type": "Expression"
 							},
+							"type": "String"
+						},
+						"Pipline_name": {
+							"value": "@pipeline().Pipeline",
+							"type": "String"
+						},
+						"Table_name": {
+							"value": "DAILY_SQL_LOAD",
 							"type": "String"
 						}
 					}
@@ -150,8 +165,8 @@
 				}
 			},
 			{
-				"name": "ACT_GEN_SETVAR_FACT_INVENTORY",
-				"type": "SetVariable",
+				"name": "SP_Insert_Log_End",
+				"type": "SqlServerStoredProcedure",
 				"dependsOn": [
 					{
 						"activity": "NB_FACT_INVENTORY",
@@ -161,74 +176,41 @@
 					}
 				],
 				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
 					"secureInput": false
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "v_SourceCount",
-					"value": ""
-				}
-			},
-			{
-				"name": "ACT_GEN_SETVAR_FACT_SALES",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "NB_FACT_SALES",
-						"dependencyConditions": [
-							"Succeeded"
-						]
+					"storedProcedureName": "[integration].[sp_LogEnd]",
+					"storedProcedureParameters": {
+						"Pipline_ID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Table_name": {
+							"value": "DAILY_SQL_LOAD"
+						},
+						"TargetCount": {
+							"value": ""
+						},
+						"Status": {
+							"value": "Success",
+							"type": "String"
+						}
 					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
 				},
-				"userProperties": []
-			},
-			{
-				"name": "ACT_GEN_SETVAR_SCD2_ORDER",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "NB_SCD2_ORDER",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "v_SourceCount",
-					"value": {
-						"value": "@int(json(activity('NB_SCD2_ORDER').output.runOutput).source_count)",
-						"type": "Expression"
-					}
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_METADATA",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
-		"variables": {
-			"v_StartTime": {
-				"type": "String"
-			},
-			"v_EndTime": {
-				"type": "String"
-			},
-			"v_Status": {
-				"type": "String"
-			},
-			"v_SourceCount": {
-				"type": "Integer"
-			},
-			"v_TargetCount": {
-				"type": "Integer"
-			}
-		},
 		"annotations": []
 	}
 }
