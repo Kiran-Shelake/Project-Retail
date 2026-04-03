@@ -128,6 +128,75 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/PL_SQL_INGESTION_TO_INTEGRATION')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ACT_ITRC_FOR_SP",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.spList",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 3,
+							"activities": [
+								{
+									"name": "Stored procedure1",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 3,
+										"retryIntervalInSeconds": 60,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL_METADATA",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"spList": {
+						"type": "array",
+						"defaultValue": [
+							"Integration.sp_Load_Order_Method_LKP",
+							"Integration.sp_Load_Return_Reason_LKP",
+							"Integration.sp_Load_Country_LKP",
+							"Integration.sp_Load_Warehouse_LKP",
+							"Integration.sp_Load_Retailer_LKP",
+							"Integration.sp_Load_Product_Name_LKP",
+							"Integration.sp_Load_Product_LKP"
+						]
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_METADATA')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DS_ADLS_RAW_CSV')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -141,6 +210,9 @@
 						"type": "string"
 					},
 					"FileName": {
+						"type": "string"
+					},
+					"Delimiter": {
 						"type": "string"
 					}
 				},
@@ -159,7 +231,11 @@
 						},
 						"fileSystem": "raw"
 					},
-					"columnDelimiter": ",",
+					"columnDelimiter": {
+						"value": "@dataset().Delimiter",
+						"type": "Expression"
+					},
+					"encodingName": "UTF-8",
 					"escapeChar": "\\",
 					"firstRowAsHeader": true,
 					"quoteChar": "\""
@@ -202,6 +278,7 @@
 						"value": "@dataset().Delimiter",
 						"type": "Expression"
 					},
+					"encodingName": "UTF-8",
 					"escapeChar": "\\",
 					"firstRowAsHeader": true,
 					"quoteChar": "\""
@@ -210,6 +287,40 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS_RAW')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_CONFIG_RAW_INGESTION')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_METADATA",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "TABLE_NAME",
+						"type": "varchar"
+					},
+					{
+						"name": "SOURCE_TYPE",
+						"type": "varchar"
+					},
+					{
+						"name": "PRIMARY_KEY",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "ingestion",
+					"table": "Config_Raw_Ingestion"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_METADATA')]"
 			]
 		},
 		{
@@ -296,109 +407,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/integrationRuntimes/Self-hostedIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DS_SQL_CONFIG_RAW_INGESTION')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_SQL_METADATA",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "TABLE_NAME",
-						"type": "varchar"
-					},
-					{
-						"name": "SOURCE_TYPE",
-						"type": "varchar"
-					},
-					{
-						"name": "PRIMARY_KEY",
-						"type": "varchar"
-					}
-				],
-				"typeProperties": {
-					"schema": "ingestion",
-					"table": "Config_Raw_Ingestion"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_METADATA')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PL_SQL_INGESTION_TO_INTEGRATION')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "ACT_ITRC_FOR_SP",
-						"type": "ForEach",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@pipeline().parameters.spList",
-								"type": "Expression"
-							},
-							"isSequential": false,
-							"batchCount": 3,
-							"activities": [
-								{
-									"name": "Stored procedure1",
-									"type": "SqlServerStoredProcedure",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"storedProcedureName": {
-											"value": "@item()",
-											"type": "Expression"
-										}
-									},
-									"linkedServiceName": {
-										"referenceName": "LS_SQL_METADATA",
-										"type": "LinkedServiceReference"
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"spList": {
-						"type": "array",
-						"defaultValue": [
-							"Integration.sp_Load_Order_Method_LKP",
-							"Integration.sp_Load_Return_Reason_LKP",
-							"Integration.sp_Load_Country_LKP",
-							"Integration.sp_Load_Warehouse_LKP",
-							"Integration.sp_Load_Retailer_LKP",
-							"Integration.sp_Load_Product_Name_LKP",
-							"Integration.sp_Load_Product_LKP"
-						]
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_METADATA')]"
 			]
 		},
 		{
@@ -528,7 +536,8 @@
 												"FileName": {
 													"value": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
 													"type": "Expression"
-												}
+												},
+												"Delimiter": "@item().Delimiter"
 											}
 										}
 									]
@@ -610,7 +619,8 @@
 												"FileName": {
 													"value": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
 													"type": "Expression"
-												}
+												},
+												"Delimiter": "@item().Delimiter"
 											}
 										}
 									]
@@ -689,7 +699,8 @@
 													"value": "Flat_File/Failure/@{item().SourceTable}",
 													"type": "Expression"
 												},
-												"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
+												"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+												"Delimiter": "@item().Delimiter"
 											}
 										}
 									]
@@ -754,6 +765,121 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/PL_MASTER_DAILY_SQL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "EXEC_LKP_LOAD",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "PL_SQL_INGESTION_TO_INTEGRATION",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "NB_SCD2_ORDER",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "EXEC_LKP_LOAD",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/prabhashelake123@gmail.com/Project-Retail/databricks Notebook/NB_TBL_DIM_ORDER-SCD2"
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB_SalesProject",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "NB_FACT_SALES",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "NB_SCD2_ORDER",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/prabhashelake123@gmail.com/Project-Retail/databricks Notebook/NB_TBL_FACT_SALES"
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB_SalesProject",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "NB_FACT_INVENTORY",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "NB_FACT_SALES",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/prabhashelake123@gmail.com/Project-Retail/databricks Notebook/NB_TBL_FACT_INVENTORY"
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB_SalesProject",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/PL_SQL_INGESTION_TO_INTEGRATION')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_ADB_SalesProject')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PL_RAW_TO_INGESTION')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -774,7 +900,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "AzureSqlSource",
-								"sqlReaderQuery": "SELECT TABLE_NAME FROM ingestion.Config_Raw_Ingestion",
+								"sqlReaderQuery": "SELECT TABLE_NAME, Delimiter FROM ingestion.Config_Raw_Ingestion",
 								"queryTimeout": "01:00:00",
 								"partitionOption": "None"
 							},
@@ -821,6 +947,10 @@
 										"baseParameters": {
 											"p_table_name": {
 												"value": "@item().TABLE_NAME",
+												"type": "Expression"
+											},
+											"p_delimiter": {
+												"value": "@item().delimiter",
 												"type": "Expression"
 											}
 										}
@@ -871,6 +1001,415 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_SOURCE')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_EXT_SQL_TO_RAW_DAILY')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ACT_LKP_CONFIG",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "SELECT * FROM Config_Source_To_Raw\nWHERE SourceSystem = 'SQLServer'",
+								"queryTimeout": "01:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "DS_SQL_METADATA",
+								"type": "DatasetReference",
+								"parameters": {
+									"TableName": "Config_Source_To_Raw"
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ACT_FOREACH_TABLE",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "ACT_LKP_CONFIG",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ACT_LKP_CONFIG').output.value",
+								"type": "Expression"
+							},
+							"batchCount": 3,
+							"activities": [
+								{
+									"name": "ACT_IF_INCREMENTAL",
+									"type": "IfCondition",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@not(empty(item().IncrementalColumn))",
+											"type": "Expression"
+										},
+										"ifFalseActivities": [
+											{
+												"name": "ACT_COPY_FULL",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"sqlReaderQuery": {
+															"value": "@concat(\n'SELECT * FROM ',\nitem().SourceSchema,'.',item().SourceTable\n)",
+															"type": "Expression"
+														},
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"sink": {
+														"type": "DelimitedTextSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "DelimitedTextWriteSettings",
+															"quoteAllText": true,
+															"fileExtension": ".txt"
+														}
+													},
+													"enableStaging": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "DS_SQL_SRC_TABLE",
+														"type": "DatasetReference",
+														"parameters": {
+															"TableName": "@item().SourceTable"
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "DS_ADLS_RAW_CSV",
+														"type": "DatasetReference",
+														"parameters": {
+															"FolderName": "SQLServer/Target/@{item().SourceTable}",
+															"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+															"Delimiter": "@item.Delimiter"
+														}
+													}
+												]
+											},
+											{
+												"name": "ACT_MT_COPY_TO_FAILURE",
+												"type": "Copy",
+												"dependsOn": [
+													{
+														"activity": "ACT_COPY_FULL",
+														"dependencyConditions": [
+															"Failed"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"queryTimeout": "01:00:00",
+														"partitionOption": "None"
+													},
+													"sink": {
+														"type": "DelimitedTextSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "DelimitedTextWriteSettings",
+															"quoteAllText": true,
+															"fileExtension": ".txt"
+														}
+													},
+													"enableStaging": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "DS_SQL_SRC_TABLE",
+														"type": "DatasetReference",
+														"parameters": {
+															"TableName": {
+																"value": "@item().SourceTable",
+																"type": "Expression"
+															}
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "DS_ADLS_RAW_CSV",
+														"type": "DatasetReference",
+														"parameters": {
+															"FolderName": {
+																"value": "SQLServer/Failure/@{item().SourceTable}",
+																"type": "Expression"
+															},
+															"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+															"Delimiter": "@item.Delimiter"
+														}
+													}
+												]
+											}
+										],
+										"ifTrueActivities": [
+											{
+												"name": "ACT_LKP_WATERMARK",
+												"type": "Lookup",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"sqlReaderQuery": {
+															"value": "SELECT LastProcessedValue\nFROM WatermarkTable\nWHERE Table_Name = '@{item().SourceTable}'",
+															"type": "Expression"
+														},
+														"queryTimeout": "01:00:00",
+														"partitionOption": "None"
+													},
+													"dataset": {
+														"referenceName": "DS_SQL_METADATA",
+														"type": "DatasetReference",
+														"parameters": {
+															"TableName": "WatermarkTable"
+														}
+													}
+												}
+											},
+											{
+												"name": "ACT_COPY_INCREMENTAL",
+												"type": "Copy",
+												"dependsOn": [
+													{
+														"activity": "ACT_LKP_WATERMARK",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"sqlReaderQuery": {
+															"value": "@concat(\n'SELECT * FROM ',\nitem().SourceSchema,'.',item().SourceTable,\n' WHERE ',item().IncrementalColumn,' >= ''',\nactivity('ACT_LKP_WATERMARK').output.firstRow.LastProcessedValue,\n''''\n)",
+															"type": "Expression"
+														},
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"sink": {
+														"type": "DelimitedTextSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "DelimitedTextWriteSettings",
+															"quoteAllText": true,
+															"fileExtension": ".txt"
+														}
+													},
+													"enableStaging": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "DS_SQL_SRC_TABLE",
+														"type": "DatasetReference",
+														"parameters": {
+															"TableName": "@item().SourceTable"
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "DS_ADLS_RAW_CSV",
+														"type": "DatasetReference",
+														"parameters": {
+															"FolderName": "SQLServer/Target/@{item().SourceTable}",
+															"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+															"Delimiter": {
+																"value": "@item.Delimiter",
+																"type": "Expression"
+															}
+														}
+													}
+												]
+											},
+											{
+												"name": "ACT_LKP_MAX_VALUE",
+												"type": "Lookup",
+												"dependsOn": [
+													{
+														"activity": "ACT_COPY_INCREMENTAL",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"sqlReaderQuery": {
+															"value": "@concat(\n'SELECT MAX(',item().IncrementalColumn,') AS max_val FROM ',\nitem().SourceSchema,'.',item().SourceTable,\n' WHERE ',item().IncrementalColumn,' >= ''',\nactivity('ACT_LKP_WATERMARK').output.firstRow.LastProcessedValue,\n''''\n)",
+															"type": "Expression"
+														},
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"dataset": {
+														"referenceName": "DS_SQL_SRC_TABLE",
+														"type": "DatasetReference",
+														"parameters": {
+															"TableName": "@item().SourceTable"
+														}
+													}
+												}
+											},
+											{
+												"name": "ACT_UPD_WATERMARK",
+												"type": "SqlServerStoredProcedure",
+												"dependsOn": [
+													{
+														"activity": "ACT_LKP_MAX_VALUE",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"storedProcedureName": "[[dbo].[sp_UpdateWatermark]",
+													"storedProcedureParameters": {
+														"TableName": {
+															"value": {
+																"value": "@item().SourceTable",
+																"type": "Expression"
+															},
+															"type": "String"
+														},
+														"IncrementalColumn": {
+															"value": {
+																"value": "@activity('ACT_LKP_MAX_VALUE').output.firstRow.max_val",
+																"type": "Expression"
+															},
+															"type": "String"
+														}
+													}
+												},
+												"linkedServiceName": {
+													"referenceName": "LS_SQL_METADATA",
+													"type": "LinkedServiceReference"
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_METADATA')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_SRC_TABLE')]",
+				"[concat(variables('factoryId'), '/datasets/DS_ADLS_RAW_CSV')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_METADATA')]"
 			]
 		},
 		{
@@ -998,7 +1537,8 @@
 													"value": "SQLServer/Target/@{item().SourceTable}",
 													"type": "Expression"
 												},
-												"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
+												"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+												"Delimiter": "@item.Delimiter"
 											}
 										}
 									]
@@ -1145,7 +1685,8 @@
 													"value": "SQLServer/Failure/@{item().SourceTable}",
 													"type": "Expression"
 												},
-												"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
+												"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv",
+												"Delimiter": "@item.Delimiter"
 											}
 										}
 									]
@@ -1164,409 +1705,6 @@
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_SRC_TABLE')]",
 				"[concat(variables('factoryId'), '/datasets/DS_ADLS_RAW_CSV')]",
 				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_SOURCE')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PL_EXT_SQL_TO_RAW_DAILY')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "ACT_LKP_CONFIG",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "SELECT * FROM Config_Source_To_Raw\nWHERE SourceSystem = 'SQLServer'",
-								"queryTimeout": "01:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "DS_SQL_METADATA",
-								"type": "DatasetReference",
-								"parameters": {
-									"TableName": "Config_Source_To_Raw"
-								}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "ACT_FOREACH_TABLE",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "ACT_LKP_CONFIG",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('ACT_LKP_CONFIG').output.value",
-								"type": "Expression"
-							},
-							"batchCount": 3,
-							"activities": [
-								{
-									"name": "ACT_IF_INCREMENTAL",
-									"type": "IfCondition",
-									"dependsOn": [],
-									"userProperties": [],
-									"typeProperties": {
-										"expression": {
-											"value": "@not(empty(item().IncrementalColumn))",
-											"type": "Expression"
-										},
-										"ifFalseActivities": [
-											{
-												"name": "ACT_COPY_FULL",
-												"type": "Copy",
-												"dependsOn": [],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "AzureSqlSource",
-														"sqlReaderQuery": {
-															"value": "@concat(\n'SELECT * FROM ',\nitem().SourceSchema,'.',item().SourceTable\n)",
-															"type": "Expression"
-														},
-														"queryTimeout": "02:00:00",
-														"partitionOption": "None"
-													},
-													"sink": {
-														"type": "DelimitedTextSink",
-														"storeSettings": {
-															"type": "AzureBlobFSWriteSettings"
-														},
-														"formatSettings": {
-															"type": "DelimitedTextWriteSettings",
-															"quoteAllText": true,
-															"fileExtension": ".txt"
-														}
-													},
-													"enableStaging": false,
-													"translator": {
-														"type": "TabularTranslator",
-														"typeConversion": true,
-														"typeConversionSettings": {
-															"allowDataTruncation": true,
-															"treatBooleanAsNumber": false
-														}
-													}
-												},
-												"inputs": [
-													{
-														"referenceName": "DS_SQL_SRC_TABLE",
-														"type": "DatasetReference",
-														"parameters": {
-															"TableName": "@item().SourceTable"
-														}
-													}
-												],
-												"outputs": [
-													{
-														"referenceName": "DS_ADLS_RAW_CSV",
-														"type": "DatasetReference",
-														"parameters": {
-															"FolderName": "SQLServer/Target/@{item().SourceTable}",
-															"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
-														}
-													}
-												]
-											},
-											{
-												"name": "ACT_MT_COPY_TO_FAILURE",
-												"type": "Copy",
-												"dependsOn": [
-													{
-														"activity": "ACT_COPY_FULL",
-														"dependencyConditions": [
-															"Failed"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "AzureSqlSource",
-														"queryTimeout": "01:00:00",
-														"partitionOption": "None"
-													},
-													"sink": {
-														"type": "DelimitedTextSink",
-														"storeSettings": {
-															"type": "AzureBlobFSWriteSettings"
-														},
-														"formatSettings": {
-															"type": "DelimitedTextWriteSettings",
-															"quoteAllText": true,
-															"fileExtension": ".txt"
-														}
-													},
-													"enableStaging": false,
-													"translator": {
-														"type": "TabularTranslator",
-														"typeConversion": true,
-														"typeConversionSettings": {
-															"allowDataTruncation": true,
-															"treatBooleanAsNumber": false
-														}
-													}
-												},
-												"inputs": [
-													{
-														"referenceName": "DS_SQL_SRC_TABLE",
-														"type": "DatasetReference",
-														"parameters": {
-															"TableName": {
-																"value": "@item().SourceTable",
-																"type": "Expression"
-															}
-														}
-													}
-												],
-												"outputs": [
-													{
-														"referenceName": "DS_ADLS_RAW_CSV",
-														"type": "DatasetReference",
-														"parameters": {
-															"FolderName": {
-																"value": "SQLServer/Failure/@{item().SourceTable}",
-																"type": "Expression"
-															},
-															"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
-														}
-													}
-												]
-											}
-										],
-										"ifTrueActivities": [
-											{
-												"name": "ACT_LKP_WATERMARK",
-												"type": "Lookup",
-												"dependsOn": [],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "AzureSqlSource",
-														"sqlReaderQuery": {
-															"value": "SELECT LastProcessedValue\nFROM WatermarkTable\nWHERE Table_Name = '@{item().SourceTable}'",
-															"type": "Expression"
-														},
-														"queryTimeout": "01:00:00",
-														"partitionOption": "None"
-													},
-													"dataset": {
-														"referenceName": "DS_SQL_METADATA",
-														"type": "DatasetReference",
-														"parameters": {
-															"TableName": "WatermarkTable"
-														}
-													}
-												}
-											},
-											{
-												"name": "ACT_COPY_INCREMENTAL",
-												"type": "Copy",
-												"dependsOn": [
-													{
-														"activity": "ACT_LKP_WATERMARK",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "AzureSqlSource",
-														"sqlReaderQuery": {
-															"value": "@concat(\n'SELECT * FROM ',\nitem().SourceSchema,'.',item().SourceTable,\n' WHERE ',item().IncrementalColumn,' >= ''',\nactivity('ACT_LKP_WATERMARK').output.firstRow.LastProcessedValue,\n''''\n)",
-															"type": "Expression"
-														},
-														"queryTimeout": "02:00:00",
-														"partitionOption": "None"
-													},
-													"sink": {
-														"type": "DelimitedTextSink",
-														"storeSettings": {
-															"type": "AzureBlobFSWriteSettings"
-														},
-														"formatSettings": {
-															"type": "DelimitedTextWriteSettings",
-															"quoteAllText": true,
-															"fileExtension": ".txt"
-														}
-													},
-													"enableStaging": false,
-													"translator": {
-														"type": "TabularTranslator",
-														"typeConversion": true,
-														"typeConversionSettings": {
-															"allowDataTruncation": true,
-															"treatBooleanAsNumber": false
-														}
-													}
-												},
-												"inputs": [
-													{
-														"referenceName": "DS_SQL_SRC_TABLE",
-														"type": "DatasetReference",
-														"parameters": {
-															"TableName": "@item().SourceTable"
-														}
-													}
-												],
-												"outputs": [
-													{
-														"referenceName": "DS_ADLS_RAW_CSV",
-														"type": "DatasetReference",
-														"parameters": {
-															"FolderName": "SQLServer/Target/@{item().SourceTable}",
-															"FileName": "@{item().TargetFileName}_@{formatDateTime(utcNow(),'yyyyMMddHHmmss')}.csv"
-														}
-													}
-												]
-											},
-											{
-												"name": "ACT_LKP_MAX_VALUE",
-												"type": "Lookup",
-												"dependsOn": [
-													{
-														"activity": "ACT_COPY_INCREMENTAL",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "AzureSqlSource",
-														"sqlReaderQuery": {
-															"value": "@concat(\n'SELECT MAX(',item().IncrementalColumn,') AS max_val FROM ',\nitem().SourceSchema,'.',item().SourceTable,\n' WHERE ',item().IncrementalColumn,' >= ''',\nactivity('ACT_LKP_WATERMARK').output.firstRow.LastProcessedValue,\n''''\n)",
-															"type": "Expression"
-														},
-														"queryTimeout": "02:00:00",
-														"partitionOption": "None"
-													},
-													"dataset": {
-														"referenceName": "DS_SQL_SRC_TABLE",
-														"type": "DatasetReference",
-														"parameters": {
-															"TableName": "@item().SourceTable"
-														}
-													}
-												}
-											},
-											{
-												"name": "ACT_UPD_WATERMARK",
-												"type": "SqlServerStoredProcedure",
-												"dependsOn": [
-													{
-														"activity": "ACT_LKP_MAX_VALUE",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"storedProcedureName": "[[dbo].[sp_UpdateWatermark]",
-													"storedProcedureParameters": {
-														"TableName": {
-															"value": {
-																"value": "@item().SourceTable",
-																"type": "Expression"
-															},
-															"type": "String"
-														},
-														"IncrementalColumn": {
-															"value": {
-																"value": "@activity('ACT_LKP_MAX_VALUE').output.firstRow.max_val",
-																"type": "Expression"
-															},
-															"type": "String"
-														}
-													}
-												},
-												"linkedServiceName": {
-													"referenceName": "LS_SQL_METADATA",
-													"type": "LinkedServiceReference"
-												}
-											}
-										]
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/DS_SQL_METADATA')]",
-				"[concat(variables('factoryId'), '/datasets/DS_SQL_SRC_TABLE')]",
-				"[concat(variables('factoryId'), '/datasets/DS_ADLS_RAW_CSV')]",
-				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_METADATA')]"
 			]
 		}
 	]
