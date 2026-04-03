@@ -5,7 +5,14 @@
 			{
 				"name": "EXEC_LKP_LOAD",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "SP_Insert_Log_Start",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"secureInput": false
 				},
@@ -98,8 +105,130 @@
 					"referenceName": "LS_ADB_SalesProject",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "SP_Insert_Log_Start",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[sp_Insert_TableLog_Start]",
+					"storedProcedureParameters": {
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"ActivityName": {
+							"value": {
+								"value": "'PL_MASTER_DAILY_SQL'\n",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"ExecutionID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_METADATA",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ACT_GEN_SETVAR_FACT_INVENTORY",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "NB_FACT_INVENTORY",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_SourceCount",
+					"value": ""
+				}
+			},
+			{
+				"name": "ACT_GEN_SETVAR_FACT_SALES",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "NB_FACT_SALES",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": []
+			},
+			{
+				"name": "ACT_GEN_SETVAR_SCD2_ORDER",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "NB_SCD2_ORDER",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_SourceCount",
+					"value": {
+						"value": "@int(json(activity('NB_SCD2_ORDER').output.runOutput).source_count)",
+						"type": "Expression"
+					}
+				}
 			}
 		],
+		"variables": {
+			"v_StartTime": {
+				"type": "String"
+			},
+			"v_EndTime": {
+				"type": "String"
+			},
+			"v_Status": {
+				"type": "String"
+			},
+			"v_SourceCount": {
+				"type": "Integer"
+			},
+			"v_TargetCount": {
+				"type": "Integer"
+			}
+		},
 		"annotations": []
 	}
 }
