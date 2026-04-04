@@ -19,7 +19,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "PL_SQL_INGESTION_TO_INTEGRATION",
+						"referenceName": "PL_INGESTION_TO_INTEGRATION_SCD1",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true
@@ -228,7 +228,10 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "v_TargetCount",
-					"value": "@int(activity('NB_FACT_INVENTORY').output.runOutput)"
+					"value": {
+						"value": "@int(activity('NB_FACT_INVENTORY').output.runOutput)",
+						"type": "Expression"
+					}
 				}
 			},
 			{

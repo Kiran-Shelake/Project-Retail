@@ -1,5 +1,5 @@
 {
-	"name": "PL_SQL_INGESTION_TO_INTEGRATION",
+	"name": "PL_INGESTION_TO_INTEGRATION_SCD1",
 	"properties": {
 		"activities": [
 			{
