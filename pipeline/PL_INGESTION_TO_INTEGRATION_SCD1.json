@@ -52,7 +52,8 @@
 					"Integration.sp_Load_Warehouse_LKP",
 					"Integration.sp_Load_Retailer_LKP",
 					"Integration.sp_Load_Product_Name_LKP",
-					"Integration.sp_Load_Product_LKP"
+					"Integration.sp_Load_Product_LKP",
+					"Integration.sp_Load_INVENTORY_LEVELS_LKP"
 				]
 			}
 		},
