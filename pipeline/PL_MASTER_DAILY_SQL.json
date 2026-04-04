@@ -7,7 +7,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "SP_Insert_Log_Start",
+						"activity": "SP_Log_Start",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -38,7 +38,7 @@
 				],
 				"policy": {
 					"timeout": "0.12:00:00",
-					"retry": 0,
+					"retry": 3,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
 					"secureInput": false
@@ -65,7 +65,7 @@
 				],
 				"policy": {
 					"timeout": "0.12:00:00",
-					"retry": 0,
+					"retry": 3,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
 					"secureInput": false
@@ -92,7 +92,7 @@
 				],
 				"policy": {
 					"timeout": "0.12:00:00",
-					"retry": 0,
+					"retry": 3,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
 					"secureInput": false
@@ -107,7 +107,7 @@
 				}
 			},
 			{
-				"name": "SP_Insert_Log_Start",
+				"name": "SP_Log_Start",
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [],
 				"policy": {
@@ -123,38 +123,30 @@
 					"storedProcedureParameters": {
 						"SourceSystem": {
 							"value": {
-								"value": "SQL",
+								"value": "@pipeline().parameters.p_SourceSystem",
 								"type": "Expression"
 							},
 							"type": "String"
 						},
-						"MaterPipline_ID": {
+						"PipelineRunId": {
 							"value": {
 								"value": "@pipeline().RunId",
 								"type": "Expression"
 							},
 							"type": "String"
 						},
-						"Master_Pipline_Name": {
+						"PipelineName": {
 							"value": {
 								"value": "@pipeline().Pipeline",
 								"type": "Expression"
 							},
 							"type": "String"
 						},
-						"Pipline_ID": {
+						"TableName": {
 							"value": {
-								"value": "@pipeline().RunId",
+								"value": "@pipeline().parameters.p_TableName",
 								"type": "Expression"
 							},
-							"type": "String"
-						},
-						"Pipline_name": {
-							"value": "@pipeline().Pipeline",
-							"type": "String"
-						},
-						"Table_name": {
-							"value": "DAILY_SQL_LOAD",
 							"type": "String"
 						}
 					}
@@ -165,11 +157,11 @@
 				}
 			},
 			{
-				"name": "SP_Insert_Log_End",
+				"name": "SP_Log_End",
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [
 					{
-						"activity": "NB_FACT_INVENTORY",
+						"activity": "SETVAR_TargetCount",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -186,18 +178,26 @@
 				"typeProperties": {
 					"storedProcedureName": "[integration].[sp_LogEnd]",
 					"storedProcedureParameters": {
-						"Pipline_ID": {
+						"PipelineRunId": {
 							"value": {
 								"value": "@pipeline().RunId",
 								"type": "Expression"
 							},
 							"type": "String"
 						},
-						"Table_name": {
-							"value": "DAILY_SQL_LOAD"
+						"TableName": {
+							"value": {
+								"value": "@pipeline().parameters.p_TableName",
+								"type": "Expression"
+							},
+							"type": "String"
 						},
 						"TargetCount": {
-							"value": ""
+							"value": {
+								"value": "@variables('v_TargetCount')",
+								"type": "Expression"
+							},
+							"type": "Int32"
 						},
 						"Status": {
 							"value": "Success",
@@ -209,8 +209,236 @@
 					"referenceName": "LS_SQL_METADATA",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "SETVAR_TargetCount",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "NB_FACT_INVENTORY",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_TargetCount",
+					"value": "@int(activity('NB_FACT_INVENTORY').output.runOutput)"
+				}
+			},
+			{
+				"name": "SP_Log_Error_FCT_INVEN",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "NB_FACT_INVENTORY",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[integration].[sp_LogError]",
+					"storedProcedureParameters": {
+						"PipelineRunId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TableName": {
+							"value": {
+								"value": "@pipeline().parameters.p_TableName",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"ActivityName": {
+							"value": {
+								"value": "@activity('NB_FACT_INVENTORY').name",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"ErrorDescription": {
+							"value": {
+								"value": "@activity('NB_FACT_INVENTORY').error.message",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_METADATA",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "SP_Log_Error_SCD2",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "NB_SCD2_ORDER",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[integration].[sp_LogError]",
+					"storedProcedureParameters": {
+						"PipelineRunId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TableName": {
+							"value": {
+								"value": "@pipeline().parameters.p_TableName",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"ActivityName": {
+							"value": {
+								"value": "@activity('NB_SCD2_ORDER').name",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"ErrorDescription": {
+							"value": {
+								"value": "@activity('NB_SCD2_ORDER').error.message",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_METADATA",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "SP_Log_Error_FCT_SALES",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "NB_FACT_SALES",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[integration].[sp_LogError]",
+					"storedProcedureParameters": {
+						"PipelineRunId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TableName": {
+							"value": {
+								"value": "@pipeline().parameters.p_TableName",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"ActivityName": {
+							"value": {
+								"value": "@activity('NB_FACT_SALES').name",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"ErrorDescription": {
+							"value": {
+								"value": "@activity('NB_FACT_SALES').error.message",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_METADATA",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
+		"parameters": {
+			"p_SourceSystem": {
+				"type": "string",
+				"defaultValue": "SQL"
+			},
+			"p_TableName": {
+				"type": "string",
+				"defaultValue": "DAILY_SQL_LOAD"
+			}
+		},
+		"variables": {
+			"v_TargetCount": {
+				"type": "Integer"
+			}
+		},
 		"annotations": []
 	}
 }
