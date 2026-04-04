@@ -6,7 +6,7 @@
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "PL_MASTER_DAILY_SQL",
+					"referenceName": "PL_MASTER_SCD2_FACT TBL",
 					"type": "PipelineReference"
 				}
 			}
