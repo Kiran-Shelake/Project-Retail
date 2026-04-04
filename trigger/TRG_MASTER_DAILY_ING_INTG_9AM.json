@@ -6,7 +6,7 @@
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "PL_MASTER_SCD2_FACT TBL",
+					"referenceName": "PL_MASTER_SCD2_FACT_TBL",
 					"type": "PipelineReference"
 				}
 			}

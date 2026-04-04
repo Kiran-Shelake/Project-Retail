@@ -1,9 +1,9 @@
 {
-	"name": "PL_MASTER_SCD2_FACT TBL",
+	"name": "PL_MASTER_SCD2_FACT_TBL",
 	"properties": {
 		"activities": [
 			{
-				"name": "EXEC_LKP_LOAD",
+				"name": "EXEC_INGEST-INTEG",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"policy": {
@@ -15,7 +15,10 @@
 						"referenceName": "PL_INGESTION_TO_INTEGRATION_SCD1",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"spList": "@json('[\n\"Integration.sp_Load_Order_Method_LKP\",\n\"Integration.sp_Load_Return_Reason_LKP\",\n\"Integration.sp_Load_Country_LKP\",\n\"Integration.sp_Load_Warehouse_LKP\",\n\"Integration.sp_Load_Retailer_LKP\",\n\"Integration.sp_Load_Product_Name_LKP\",\n\"Integration.sp_Load_Product_LKP\",\n\"Integration.sp_Load_INVENTORY_LEVELS_LKP\"\n]')"
+					}
 				}
 			},
 			{
@@ -104,7 +107,7 @@
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [
 					{
-						"activity": "EXEC_LKP_LOAD",
+						"activity": "EXEC_INGEST-INTEG",
 						"dependencyConditions": [
 							"Succeeded"
 						]
