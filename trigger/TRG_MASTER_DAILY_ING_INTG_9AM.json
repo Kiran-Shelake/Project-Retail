@@ -9,6 +9,12 @@
 					"referenceName": "PL_MASTER_SCD2_FACT_TBL",
 					"type": "PipelineReference"
 				}
+			},
+			{
+				"pipelineReference": {
+					"referenceName": "PL_MASTER_ALL_DAILY",
+					"type": "PipelineReference"
+				}
 			}
 		],
 		"type": "ScheduleTrigger",
